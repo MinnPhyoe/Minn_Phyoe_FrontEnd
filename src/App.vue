@@ -9,47 +9,25 @@
 
         <!-- Navigation Links -->
         <div class="navbar-nav me-auto ms-3">
-          <a 
-            class="nav-link" 
-            :class="{ active: currentPage === 'home' }"
-            href="#" 
-            @click.prevent="currentPage = 'home'"
-          >
-            <i class="fas fa-home"></i> Home
-          </a>
-          <a 
-            class="nav-link" 
-            :class="{ active: currentPage === 'classes' }"
-            href="#" 
-            @click.prevent="currentPage = 'classes'"
-          >
-            <i class="fas fa-book"></i> Classes
-          </a>
+          <a class="nav-link" :class="{ active: currentPage === 'home' }" href="#"
+            @click.prevent="currentPage = 'home'">Home</a>
+          <a class="nav-link" :class="{ active: currentPage === 'classes' }" href="#"
+            @click.prevent="currentPage = 'classes'">Classes</a>
         </div>
 
         <div class="ms-auto d-flex align-items-center">
           <!-- Search Bar -->
           <div class="me-3" v-if="currentPage === 'classes'">
-            <input 
-              type="text" 
-              class="form-control rounded-pill ps-3" 
-              placeholder="Type to search" 
-              v-model="searchQuery"
-              @input="searchLessons"
-            >
+            <input type="text" class="form-control rounded-pill ps-3" placeholder="Type to search" v-model="searchQuery"
+              @input="searchLessons">
           </div>
 
           <!-- Shopping Cart Button -->
-          <button 
-            class="btn btn-light position-relative" 
-            @click="currentPage = 'checkout'" 
-            :disabled="cart.length === 0"
-          >
+          <button class="btn btn-light position-relative" @click="currentPage = 'checkout'"
+            :disabled="cart.length === 0">
             <i class="fas fa-shopping-cart"></i>
-            <span 
-              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-              v-if="cart.length > 0"
-            >
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+              v-if="cart.length > 0">
               {{ cart.length }}
             </span>
           </button>
@@ -60,39 +38,18 @@
     <!-- Main Content -->
     <div class="container mt-4">
       <!-- Home Page -->
-      <HomePage 
-        v-if="currentPage === 'home'"
-        @navigate-to-classes="currentPage = 'classes'"
-      />
+      <HomePage v-if="currentPage === 'home'" @navigate-to-classes="currentPage = 'classes'" />
 
       <!-- Classes List Page -->
-      <ClassesList 
-        v-else-if="currentPage === 'classes'"
-        :lessons="sortedLessons"
-        :sortAttribute="sortAttribute"
-        :sortOrder="sortOrder"
-        :searchQuery="searchQuery"
-        @update:sortAttribute="sortAttribute = $event"
-        @update:sortOrder="sortOrder = $event"
-        @add-to-cart="addToCart"
-      />
+      <ClassesList v-else-if="currentPage === 'classes'" :lessons="sortedLessons" :sortAttribute="sortAttribute"
+        :sortOrder="sortOrder" :searchQuery="searchQuery" @update:sortAttribute="sortAttribute = $event"
+        @update:sortOrder="sortOrder = $event" @add-to-cart="addToCart" />
 
       <!-- Checkout Page -->
-      <CheckoutPage 
-        v-else
-        :cart="cart"
-        :totalPrice="totalPrice"
-        :checkoutInfo="checkoutInfo"
-        :isValidName="isValidName"
-        :isValidPhone="isValidPhone"
-        :canCheckout="canCheckout"
-        :orderConfirmed="orderConfirmed"
-        @update:name="checkoutInfo.name = $event"
-        @update:phone="checkoutInfo.phone = $event"
-        @remove-from-cart="removeFromCart"
-        @checkout="checkout"
-        @reset-order="resetOrder"
-      />
+      <CheckoutPage v-else :cart="cart" :totalPrice="totalPrice" :checkoutInfo="checkoutInfo" :isValidName="isValidName"
+        :isValidPhone="isValidPhone" :canCheckout="canCheckout" :orderConfirmed="orderConfirmed"
+        @update:name="checkoutInfo.name = $event" @update:phone="checkoutInfo.phone = $event"
+        @remove-from-cart="removeFromCart" @checkout="checkout" @reset-order="resetOrder" />
     </div>
   </div>
 </template>
@@ -370,8 +327,28 @@ body {
 .navbar-nav .nav-link {
   color: rgba(255, 255, 255, 0.75);
   transition: color 0.3s;
-  padding: 0.5rem 1rem;
+  padding: 0.2rem 1rem;
   margin: 0 0.25rem;
+}
+
+.navbar-nav .nav-link {
+  position: relative;
+}
+
+.navbar-nav .nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background-color: #fff;
+  transition: width 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover::after,
+.navbar-nav .nav-link.active::after {
+  width: 100%;
 }
 
 .navbar-nav .nav-link:hover {
@@ -381,8 +358,10 @@ body {
 .navbar-nav .nav-link.active {
   color: #fff;
   font-weight: bold;
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 0.25rem;
+}
+
+.navbar-nav .nav-link.active::after {
+  width: 100%;
 }
 
 .btn-light:disabled {

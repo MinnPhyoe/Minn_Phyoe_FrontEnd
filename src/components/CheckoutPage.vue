@@ -4,41 +4,13 @@
 
     <!-- Cart Items -->
     <div v-if="cart.length > 0">
-      <!-- Cart Item Cards -->
-      <div class="card mb-3 cart-item-card" v-for="(item, index) in cart" :key="index">
-        <div class="card-body">
-          <div class="row align-items-center">
-            <div class="col-md-2 text-center">
-              <i :class="'fas ' + item.icon + ' fa-2x text-primary'"></i>
-            </div>
-            <div class="col-md-6">
-              <h5>{{ item.subject }}</h5>
-              <p class="mb-0">
-                <i class="fas fa-map-marker-alt"></i> {{ item.location }}
-              </p>
-            </div>
-            <div class="col-md-2">
-              <strong>£{{ item.price }}</strong>
-            </div>
-            <div class="col-md-2">
-              <button class="btn btn-danger btn-sm" @click="$emit('remove-from-cart', index)">
-                <i class="fas fa-trash"></i> Remove
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+       <!-- Checkout Form --> 
+        <div class="container">
+          <div class="row">
 
-      <!-- Total Price -->
-      <div class="card bg-light">
-        <div class="card-body">
-          <h4 class="text-end">Total: £{{ totalPrice }}</h4>
-        </div>
-      </div>
-
-      <!-- Checkout Form -->
-      <div class="card mt-4">
-        <div class="card-header bg-primary text-white">
+          
+      <div class="card col-md-6 mt-4">
+        <div class="card-header bg-dark text-white">
           <h5 class="mb-0">Checkout Information</h5>
         </div>
         <div class="card-body">
@@ -77,7 +49,7 @@
             </div>
           </div>
           <button 
-            class="btn btn-success w-100" 
+            class="btn btn-dark w-100" 
             @click="$emit('checkout')"
             :disabled="!canCheckout"
           >
@@ -85,21 +57,59 @@
           </button>
         </div>
       </div>
+
+      
+      <!-- Cart Item Cards -->
+       <div class="col-md-6 mt-4">
+      <div class="card mb-3 cart-item-card" v-for="(item, index) in cart" :key="index">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-md-2 text-center">
+              <i :class="'fas ' + item.icon + ' fa-2x text-white bg-dark p-3 rounded'"></i>
+            </div>
+            <div class="col-md-6">
+              <h5>{{ item.subject }}</h5>
+              <p class="mb-0">
+                <i class="fas fa-map-marker-alt"></i> {{ item.location }}
+              </p>
+            </div>
+            <div class="col-md-2">
+              <strong>£{{ item.price }}</strong>
+            </div>
+            <div class="col-md-2">
+              <button class="btn btn-dark btn-sm" @click="$emit('remove-from-cart', index)">
+                <i class="fas fa-trash"></i> Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total Price -->
+      <div class="card bg-dark text-white mb-4">
+        <div class="card-body">
+          <h4 class="text-end">Total: £{{ totalPrice }}</h4>
+        </div>
+      </div>
+      </div>
+    </div>
+     
+     </div>
     </div>
 
     <!-- Empty Cart Message -->
-    <div v-else class="alert alert-info">
+    <div v-else class="alert alert-dark">
       <i class="fas fa-shopping-cart"></i> Your cart is empty. Add some lessons to get started!
     </div>
 
     <!-- Order Confirmation -->
-    <div v-if="orderConfirmed" class="alert alert-success mt-4 order-confirmation">
+    <div v-if="orderConfirmed" class="alert alert-dark mt-4 order-confirmation">
       <h4 class="alert-heading">
         <i class="fas fa-check-circle"></i> Order Confirmed!
       </h4>
       <p>Your order has been successfully submitted. We'll contact you shortly.</p>
       <hr>
-      <button class="btn btn-success" @click="$emit('reset-order')">
+      <button class="btn btn-dark" @click="$emit('reset-order')">
         Continue Shopping
       </button>
     </div>
@@ -144,16 +154,10 @@ export default {
 </script>
 
 <style scoped>
-.cart-item-card {
-  transition: transform 0.2s;
-}
 
-.cart-item-card:hover {
-  transform: translateX(5px);
-}
 
 .is-valid {
-  border-color: #28a745;
+  border-color: #000000;
 }
 
 .is-invalid {
@@ -161,7 +165,7 @@ export default {
 }
 
 .form-control:focus {
-  border-color: #0d6efd;
+  border-color: #000000;
   box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
 }
 
