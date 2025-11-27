@@ -1,35 +1,56 @@
 <template>
   <div id="app">
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-black sticky-top">
       <div class="container">
-        <a class="navbar-brand" href="#">
-          <i class="fas fa-graduation-cap"></i> After School Classes
+        <a class="navbar-brand" href="#" @click.prevent="currentPage = 'home'">
+          <i class="fa-solid fa-user-astronaut"></i> MINN EDU
         </a>
+
+        <!-- Navigation Links -->
+        <div class="navbar-nav me-auto ms-3">
+          <a 
+            class="nav-link" 
+            :class="{ active: currentPage === 'home' }"
+            href="#" 
+            @click.prevent="currentPage = 'home'"
+          >
+            <i class="fas fa-home"></i> Home
+          </a>
+          <a 
+            class="nav-link" 
+            :class="{ active: currentPage === 'classes' }"
+            href="#" 
+            @click.prevent="currentPage = 'classes'"
+          >
+            <i class="fas fa-book"></i> Classes
+          </a>
+        </div>
+
         <div class="ms-auto d-flex align-items-center">
           <!-- Search Bar -->
-          <div class="me-3" v-if="showLessons">
+          <div class="me-3" v-if="currentPage === 'classes'">
             <input 
               type="text" 
-              class="form-control" 
-              placeholder="Search lessons..." 
+              class="form-control rounded-pill ps-3" 
+              placeholder="Type to search" 
               v-model="searchQuery"
               @input="searchLessons"
             >
           </div>
-          
+
           <!-- Shopping Cart Button -->
           <button 
             class="btn btn-light position-relative" 
-            @click="toggleCart"
+            @click="currentPage = 'checkout'" 
             :disabled="cart.length === 0"
           >
             <i class="fas fa-shopping-cart"></i>
             <span 
-              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
               v-if="cart.length > 0"
             >
-              {{ cartItemCount }}
+              {{ cart.length }}
             </span>
           </button>
         </div>
@@ -38,19 +59,26 @@
 
     <!-- Main Content -->
     <div class="container mt-4">
-      <!-- Lessons Page -->
-      <LessonsPage 
-        v-if="showLessons"
-        :sortedLessons="sortedLessons"
+      <!-- Home Page -->
+      <HomePage 
+        v-if="currentPage === 'home'"
+        @navigate-to-classes="currentPage = 'classes'"
+      />
+
+      <!-- Classes List Page -->
+      <ClassesList 
+        v-else-if="currentPage === 'classes'"
+        :lessons="sortedLessons"
         :sortAttribute="sortAttribute"
         :sortOrder="sortOrder"
+        :searchQuery="searchQuery"
         @update:sortAttribute="sortAttribute = $event"
         @update:sortOrder="sortOrder = $event"
         @add-to-cart="addToCart"
       />
 
-      <!-- Shopping Cart Page -->
-      <CartPage 
+      <!-- Checkout Page -->
+      <CheckoutPage 
         v-else
         :cart="cart"
         :totalPrice="totalPrice"
@@ -70,38 +98,40 @@
 </template>
 
 <script>
-import LessonsPage from './components/LessonsPage.vue'
-import CartPage from './components/CartPage.vue'
+import HomePage from './components/HomePage.vue'
+import ClassesList from './components/ClassesList.vue'
+import CheckoutPage from './components/CheckoutPage.vue'
 
 export default {
   name: 'App',
   components: {
-    LessonsPage,
-    CartPage
+    HomePage,
+    ClassesList,
+    CheckoutPage
   },
   data() {
     return {
       // API Base URL - REPLACE WITH YOUR RENDER URL
       apiUrl: 'https://minn-phyoe-coursework.onrender.com',
-      
+
       // Lessons data
       lessons: [],
       filteredLessons: [],
-      
+
       // Shopping cart
       cart: [],
-      
+
       // UI state
-      showLessons: true,
+      currentPage: 'home', // 'home', 'classes', 'checkout'
       orderConfirmed: false,
-      
+
       // Sort options
       sortAttribute: 'subject',
       sortOrder: 'asc',
-      
+
       // Search
       searchQuery: '',
-      
+
       // Checkout information
       checkoutInfo: {
         name: '',
@@ -113,17 +143,17 @@ export default {
     // Sort lessons based on selected attribute and order
     sortedLessons() {
       const lessonsToSort = this.searchQuery ? this.filteredLessons : this.lessons
-      
+
       return [...lessonsToSort].sort((a, b) => {
         let aVal = a[this.sortAttribute]
         let bVal = b[this.sortAttribute]
-        
+
         // Convert to lowercase for string comparison
         if (typeof aVal === 'string') {
           aVal = aVal.toLowerCase()
           bVal = bVal.toLowerCase()
         }
-        
+
         if (this.sortOrder === 'asc') {
           return aVal > bVal ? 1 : -1
         } else {
@@ -131,27 +161,22 @@ export default {
         }
       })
     },
-    
-    // Calculate total number of items in cart
-    cartItemCount() {
-      return this.cart.length
-    },
-    
+
     // Calculate total price
     totalPrice() {
       return this.cart.reduce((total, item) => total + item.price, 0)
     },
-    
+
     // Validate name (letters only, including spaces)
     isValidName() {
       return /^[A-Za-z\s]+$/.test(this.checkoutInfo.name)
     },
-    
+
     // Validate phone (numbers only)
     isValidPhone() {
       return /^[0-9]+$/.test(this.checkoutInfo.phone)
     },
-    
+
     // Check if checkout button should be enabled
     canCheckout() {
       return this.isValidName && this.isValidPhone && this.cart.length > 0
@@ -172,14 +197,14 @@ export default {
         alert('Failed to load lessons. Please check if the server is running.')
       }
     },
-    
-    // Search lessons (Challenge Component - Search as you type)
+
+    // Search lessons
     async searchLessons() {
       if (!this.searchQuery.trim()) {
         this.filteredLessons = []
         return
       }
-      
+
       try {
         const response = await fetch(
           `${this.apiUrl}/search?q=${encodeURIComponent(this.searchQuery)}`
@@ -193,51 +218,41 @@ export default {
         console.error('Error searching lessons:', error)
       }
     },
-    
+
     // Add lesson to cart
     addToCart(lesson) {
       if (lesson.space > 0) {
         // Add to cart
-        this.cart.push({...lesson})
-        
-        // Decrease space locally (will be updated in DB after checkout)
+        this.cart.push({ ...lesson })
+
+        // Decrease space locally
         lesson.space--
-        
+
         console.log('Added to cart:', lesson)
       }
     },
-    
+
     // Remove lesson from cart
     removeFromCart(index) {
       const removedItem = this.cart[index]
-      
+
       // Find the lesson in the lessons array and increase space
       const lesson = this.lessons.find(l => l._id === removedItem._id)
       if (lesson) {
         lesson.space++
       }
-      
+
       // Remove from cart
       this.cart.splice(index, 1)
       console.log('Removed from cart:', removedItem)
     },
-    
-    // Toggle between lessons page and cart page
-    toggleCart() {
-      this.showLessons = !this.showLessons
-      
-      // Reset order confirmation when going back to cart
-      if (!this.showLessons) {
-        this.orderConfirmed = false
-      }
-    },
-    
+
     // Checkout and submit order
     async checkout() {
       if (!this.canCheckout) {
         return
       }
-      
+
       try {
         // Prepare order data
         const lessonIDs = this.cart.map(item => item._id)
@@ -245,16 +260,16 @@ export default {
           acc[item._id] = (acc[item._id] || 0) + 1
           return acc
         }, {})
-        
+
         const orderData = {
           name: this.checkoutInfo.name,
           phone: this.checkoutInfo.phone,
           lessonIDs: lessonIDs,
           numberOfSpaces: numberOfSpaces
         }
-        
+
         console.log('Submitting order:', orderData)
-        
+
         // Submit order via POST
         const orderResponse = await fetch(`${this.apiUrl}/orders`, {
           method: 'POST',
@@ -263,26 +278,26 @@ export default {
           },
           body: JSON.stringify(orderData)
         })
-        
+
         if (!orderResponse.ok) {
           throw new Error('Failed to submit order')
         }
-        
+
         const orderResult = await orderResponse.json()
         console.log('Order submitted:', orderResult)
-        
-        // Update lesson spaces in database via PUT
+
+        // Update lesson spaces in database
         await this.updateLessonSpaces()
-        
+
         // Show confirmation
         this.orderConfirmed = true
-        
+
       } catch (error) {
         console.error('Error during checkout:', error)
         alert('Failed to submit order. Please try again.')
       }
     },
-    
+
     // Update lesson spaces in database after order
     async updateLessonSpaces() {
       // Count how many times each lesson appears in cart
@@ -295,7 +310,7 @@ export default {
           }
         }
       })
-      
+
       // Update each lesson's space in database
       for (const lessonId in lessonUpdates) {
         try {
@@ -308,25 +323,25 @@ export default {
               space: lessonUpdates[lessonId].currentSpace
             })
           })
-          
+
           if (!response.ok) {
             throw new Error('Failed to update lesson space')
           }
-          
+
           console.log(`Updated lesson ${lessonId}`)
         } catch (error) {
           console.error(`Error updating lesson ${lessonId}:`, error)
         }
       }
     },
-    
-    // Reset order and go back to lessons page
+
+    // Reset order and go back to classes page
     resetOrder() {
       this.cart = []
       this.checkoutInfo = { name: '', phone: '' }
       this.orderConfirmed = false
-      this.showLessons = true
-      
+      this.currentPage = 'classes'
+
       // Refresh lessons from server
       this.fetchLessons()
     }
@@ -338,19 +353,36 @@ export default {
 </script>
 
 <style>
-/* Custom Styles */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f8f9fa;
 }
 
 .navbar {
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .navbar-brand {
   font-size: 1.5rem;
   font-weight: bold;
+}
+
+.navbar-nav .nav-link {
+  color: rgba(255, 255, 255, 0.75);
+  transition: color 0.3s;
+  padding: 0.5rem 1rem;
+  margin: 0 0.25rem;
+}
+
+.navbar-nav .nav-link:hover {
+  color: rgba(255, 255, 255, 1);
+}
+
+.navbar-nav .nav-link.active {
+  color: #fff;
+  font-weight: bold;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 0.25rem;
 }
 
 .btn-light:disabled {
