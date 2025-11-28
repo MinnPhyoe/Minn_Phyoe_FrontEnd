@@ -8,7 +8,7 @@
         </a>
 
         <!-- Navigation Links -->
-        <div class="navbar-nav me-auto ms-10">
+        <div class="navbar-nav me-auto ms-3">
           <a class="nav-link" :class="{ active: currentPage === 'home' }" href="#"
             @click.prevent="currentPage = 'home'">Home</a>
           <a class="nav-link" :class="{ active: currentPage === 'classes' }" href="#"
@@ -18,7 +18,7 @@
         <div class="ms-auto d-flex align-items-center">
           <!-- Search Bar -->
           <div class="me-3" v-if="currentPage === 'classes'">
-            <input type="text" class="form-control rounded-pill ps-3" placeholder="Type to search" v-model="searchQuery"
+            <input type="text" class="form-control rounded-pill ps-2" placeholder="Type to search" v-model="searchQuery"
               @input="searchLessons">
           </div>
 
@@ -316,7 +316,7 @@ body {
 }
 
 .navbar {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .navbar-brand {
