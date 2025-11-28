@@ -8,7 +8,7 @@
         </a>
 
         <!-- Navigation Links -->
-        <div class="navbar-nav me-auto ms-3">
+        <div class="navbar-nav me-auto ms-10">
           <a class="nav-link" :class="{ active: currentPage === 'home' }" href="#"
             @click.prevent="currentPage = 'home'">Home</a>
           <a class="nav-link" :class="{ active: currentPage === 'classes' }" href="#"
